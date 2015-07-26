@@ -1484,12 +1484,12 @@ contains
           usage = ''
           select case(cla%nargs)
           case('+')
-            usage = usage//' value#1 [value#2...]'
+            usage = usage//' '//cla%valname//'1 ['//cla%valname//'2...]'
           case('*')
-            usage = usage//' [value#1 value#2...]'
+            usage = usage//' ['//cla%valname//'1 '//cla%valname//'2...]'
           case default
             do a=1, cton(str=trim(adjustl(cla%nargs)),knd=1_I4P)
-              usage = usage//' value#'//trim(str(.true.,a))
+              usage = usage//' '//cla%valname//trim(str(.true.,a))
             enddo
           endselect
           if (trim(adjustl(cla%switch))/=trim(adjustl(cla%switch_ab))) then
@@ -1560,14 +1560,14 @@ contains
         if (allocated(cla%nargs)) then
           select case(cla%nargs)
           case('+')
-            signd = ' '//cla%valname//'#1 ['//cla%valname//'#2 '//cla%valname//'#3...]'
+            signd = ' '//cla%valname//'1 ['//cla%valname//'2 '//cla%valname//'3...]'
           case('*')
-            signd = ' ['//cla%valname//'#1 '//cla%valname//'#2 '//cla%valname//'#3...]'
+            signd = ' ['//cla%valname//'1 '//cla%valname//'2 '//cla%valname//'3...]'
           case default
             nargs = cton(str=trim(adjustl(cla%nargs)),knd=1_I4P)
             signd = ''
             do a=1,nargs
-              signd = signd//' '//cla%valname//'#'//trim(str(.true.,a))
+              signd = signd//' '//cla%valname//trim(str(.true.,a))
             enddo
           endselect
         else
