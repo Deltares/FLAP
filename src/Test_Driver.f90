@@ -72,7 +72,7 @@ call cli%add(switch='--boolean_val',switch_ab='-bv',help='Valued boolean input',
              def='.true.',error=error)
 if (error/=0) stop
 call cli%add(switch='--integer_list',switch_ab='-il',help='Integer list input',required=.false.,act='store',&
-             nargs='3',def='1 8 32',error=error)
+             nargs='3',def='1 8 32',valname='N',error=error)
 if (error/=0) stop
 call cli%add(positional=.true.,position=1,help='Positional real input',required=.false.,def='1.0',error=error)
 if (error/=0) stop

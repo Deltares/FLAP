@@ -54,6 +54,7 @@ type, extends(Type_Object) :: Type_Command_Line_Argument
   character(len=:), allocatable :: nargs              !< Number of arguments consumed by CLA.
   character(len=:), allocatable :: choices            !< List (comma separated) of allowable values for the argument.
   character(len=:), allocatable :: val                !< CLA value.
+  character(len=:), allocatable :: valname            !< CLA value name for in usage info (to replace default 'value', e.g., 'FILE'.)
   character(len=:), allocatable :: envvar             !< Environment variable from which take value.
   contains
     ! public methods
@@ -537,6 +538,7 @@ contains
   if (allocated(cla%nargs    )) deallocate(cla%nargs    )
   if (allocated(cla%choices  )) deallocate(cla%choices  )
   if (allocated(cla%val      )) deallocate(cla%val      )
+  if (allocated(cla%valname  )) deallocate(cla%valname  )
   if (allocated(cla%envvar   )) deallocate(cla%envvar   )
   cla%required   = .false.
   cla%positional = .false.
@@ -1497,21 +1499,21 @@ contains
           endif
         else
           if (trim(adjustl(cla%switch))/=trim(adjustl(cla%switch_ab))) then
-            usage = '   '//trim(adjustl(cla%switch))//' value, '//trim(adjustl(cla%switch_ab))//' value'
+            usage = '   '//trim(adjustl(cla%switch))//' '//cla%valname//', '//trim(adjustl(cla%switch_ab))//' '//cla%valname
           else
-            usage = '   '//trim(adjustl(cla%switch))//' value'
+            usage = '   '//trim(adjustl(cla%switch))//' '//cla%valname
           endif
         endif
       else
-        usage = '  value'
+        usage = '  '//cla%valname
       endif
       if (allocated(cla%choices)) then
-        usage = usage//', value in: ('//cla%choices//')'
+        usage = usage//', '//cla%valname//' in: ('//cla%choices//')'
       endif
     elseif (cla%act==action_store_star) then
-      usage = '  [value]'
+      usage = '  ['//cla%valname//']'
       if (allocated(cla%choices)) then
-        usage = usage//', value in: ('//cla%choices//')'
+        usage = usage//', '//cla%valname//' in: ('//cla%choices//')'
       endif
     else
       if (trim(adjustl(cla%switch))/=trim(adjustl(cla%switch_ab))) then
@@ -1558,18 +1560,18 @@ contains
         if (allocated(cla%nargs)) then
           select case(cla%nargs)
           case('+')
-            signd = ' value#1 [value#2 value#3...]'
+            signd = ' '//cla%valname//'#1 ['//cla%valname//'#2 '//cla%valname//'#3...]'
           case('*')
-            signd = ' [value#1 value#2 value#3...]'
+            signd = ' ['//cla%valname//'#1 '//cla%valname//'#2 '//cla%valname//'#3...]'
           case default
             nargs = cton(str=trim(adjustl(cla%nargs)),knd=1_I4P)
             signd = ''
             do a=1,nargs
-              signd = signd//' value#'//trim(str(.true.,a))
+              signd = signd//' '//cla%valname//'#'//trim(str(.true.,a))
             enddo
           endselect
         else
-          signd = ' value'
+          signd = ' '//cla%valname
         endif
         if (cla%required) then
           signd = ' '//trim(adjustl(cla%switch))//signd
@@ -1578,13 +1580,13 @@ contains
         endif
       else
         if (cla%required) then
-          signd = ' value'
+          signd = ' '//cla%valname
         else
-          signd = ' [value]'
+          signd = ' ['//cla%valname//']'
         endif
       endif
     elseif (cla%act==action_store_star) then
-      signd = ' [value]'
+      signd = ' ['//cla%valname//']'
     else
       if (cla%required) then
         signd = ' '//trim(adjustl(cla%switch))
@@ -1616,6 +1618,7 @@ contains
   if (allocated(rhs%nargs    )) lhs%nargs      = rhs%nargs
   if (allocated(rhs%choices  )) lhs%choices    = rhs%choices
   if (allocated(rhs%val      )) lhs%val        = rhs%val
+  if (allocated(rhs%valname  )) lhs%valname    = rhs%valname
   if (allocated(rhs%envvar   )) lhs%envvar     = rhs%envvar
                                 lhs%required   = rhs%required
                                 lhs%positional = rhs%positional
@@ -2263,8 +2266,8 @@ contains
   !---------------------------------------------------------------------------------------------------------------------------------
   endsubroutine set_mutually_exclusive_groups
 
-  subroutine add(cli, pref, group, group_index, switch, switch_ab, help, required, positional, position, hidden, act, def, nargs,&
-                 choices, exclude, envvar, error)
+  subroutine add(cli, pref, group, group_index, switch, switch_ab, help, required, positional, position, hidden, act, valname, def, &
+                 nargs, choices, exclude, envvar, error)
   !---------------------------------------------------------------------------------------------------------------------------------
   !< Add CLA to CLI.
   !<
@@ -2287,6 +2290,7 @@ contains
   integer(I4P), optional,             intent(IN)    :: position    !< Position of positional CLA.
   logical,      optional,             intent(IN)    :: hidden      !< Flag for hiding CLA, thus it does not compare into help.
   character(*), optional,             intent(IN)    :: act         !< CLA value action.
+  character(*), optional,             intent(IN)    :: valname     !< CLA value name, only for printing in usage info (e.g., 'FILE', to replace default 'value').
   character(*), optional,             intent(IN)    :: def         !< Default value.
   character(*), optional,             intent(IN)    :: nargs       !< Number of arguments consumed by CLA.
   character(*), optional,             intent(IN)    :: choices     !< List of allowable values for the argument.
@@ -2318,6 +2322,7 @@ contains
   cla%hidden     = .false.                 ; if (present(hidden    )) cla%hidden     = hidden
   cla%act        = action_store            ; if (present(act       )) cla%act        = trim(adjustl(Upper_Case(act)))
                                              if (present(def       )) cla%def        = def
+  cla%valname    = 'value'                 ; if (present(valname   )) cla%valname    = valname
                                              if (present(nargs     )) cla%nargs      = nargs
                                              if (present(choices   )) cla%choices    = choices
   cla%m_exclude  = ''                      ; if (present(exclude   )) cla%m_exclude  = exclude
