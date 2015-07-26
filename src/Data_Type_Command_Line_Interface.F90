@@ -2217,6 +2217,7 @@ contains
   character(len=:), allocatable                        :: descriptiond      !< Detailed description.
   character(len=:), allocatable                        :: excluded          !< Group name of the mutually exclusive group.
   integer(I4P)                                         :: Ng                !< Number of groups.
+  integer(I4P)                                         :: ig                !< loop var for groups.
   !---------------------------------------------------------------------------------------------------------------------------------
 
   !---------------------------------------------------------------------------------------------------------------------------------
@@ -2226,7 +2227,9 @@ contains
     excluded     = ''        ; if (present(exclude    )) excluded     = exclude
     Ng = size(cli%clasg,dim=1)
     allocate(clasg_list_new(0:Ng))
-    clasg_list_new(0:Ng-1) = cli%clasg(0:Ng-1)
+    do ig=0,Ng-1  ! cli%clasg(0:Ng-1) crashes for Ng=1 with ifort 14.0.0092.11 on Windows
+      clasg_list_new(ig) = cli%clasg(ig)
+    end do
     call clasg_list_new(Ng)%assign_object(cli)
     clasg_list_new(Ng)%help        = helpd
     clasg_list_new(Ng)%description = descriptiond
