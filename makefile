@@ -6,9 +6,20 @@ DOBJ    = Test_Driver/obj/
 DMOD    = Test_Driver/mod/
 DEXE    = Test_Driver/
 LIBS    =
-FC      = gfortran
-OPTSC   =  -cpp -c -frealloc-lhs -O2  -J Test_Driver/mod/
-OPTSL   =  -J Test_Driver/mod/
+ifeq ("${FC}","")
+	FC      = gfortran
+endif
+
+OPTSC   =  -cpp -c -frealloc-lhs -O2  
+
+ifeq ("$(FC)", "ifort")
+OPTSC+=-module Test_Driver/mod/
+OPTSL+=-module Test_Driver/mod/
+else
+OPTSC+=-J Test_Driver/mod/
+OPTSL+=-J Test_Driver/mod/
+endif
+
 VPATH   = $(DSRC) $(DOBJ) $(DMOD)
 MKDIRS  = $(DOBJ) $(DMOD) $(DEXE)
 LCEXES  = $(shell echo $(EXES) | tr '[:upper:]' '[:lower:]')
@@ -25,6 +36,8 @@ $(DEXE)TEST_DRIVER: $(MKDIRS) $(DOBJ)test_driver.o
 	@echo $(LITEXT)
 	@$(FC) $(OPTSL) $(DOBJ)*.o $(LIBS) -o $@
 EXES := $(EXES) TEST_DRIVER
+
+all: $(EXES) $(LIBS)
 
 #compiling rules
 $(DOBJ)data_type_command_line_interface.o: src/Data_Type_Command_Line_Interface.F90 \
