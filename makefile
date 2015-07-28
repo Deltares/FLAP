@@ -10,13 +10,12 @@ ifeq ("${FC}","")
 	FC      = gfortran
 endif
 
-OPTSC   =  -cpp -c -frealloc-lhs -O2  
-
+OPTSC   =  -cpp -c -O2
 ifeq ("$(FC)", "ifort")
-OPTSC+=-module Test_Driver/mod/
+OPTSC+=-module Test_Driver/mod/ -assume realloc_lhs
 OPTSL+=-module Test_Driver/mod/
 else
-OPTSC+=-J Test_Driver/mod/
+OPTSC+=-J Test_Driver/mod/ -frealloc-lhs
 OPTSL+=-J Test_Driver/mod/
 endif
 
@@ -35,9 +34,17 @@ $(DEXE)TEST_DRIVER: $(MKDIRS) $(DOBJ)test_driver.o
 	@rm -f $(filter-out $(DOBJ)test_driver.o,$(EXESOBJ))
 	@echo $(LITEXT)
 	@$(FC) $(OPTSL) $(DOBJ)*.o $(LIBS) -o $@
-EXES := $(EXES) TEST_DRIVER
+EXES := $(EXES) $(DEXE)TEST_DRIVER
 
 all: $(EXES) $(LIBS)
+
+
+#Emulate automake's `make dist` behavior for inclusion in other packages that build source dists.
+# make  top_distdir=../../pkgname-1.0 distdir=../../pkgname-1.0/subdir/FLAP \
+#     am__remove_distdir=: am__skip_length_check=: am__skip_mode_fix=: distdir
+distdir:
+	cp -rpf . $(distdir)
+
 
 #compiling rules
 $(DOBJ)data_type_command_line_interface.o: src/Data_Type_Command_Line_Interface.F90 \
