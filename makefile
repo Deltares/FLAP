@@ -36,8 +36,10 @@ $(DEXE)TEST_DRIVER: $(MKDIRS) $(DOBJ)test_driver.o
 	@$(FC) $(OPTSL) $(DOBJ)*.o $(LIBS) -o $@
 EXES := $(EXES) $(DEXE)TEST_DRIVER
 
-all: $(EXES) $(LIBS)
+all: foo $(EXES) $(LIBS)
 
+install:
+# empty rule as long as this makefile does not build a library (only .mods' and .o's, NOINST)
 
 #Emulate automake's `make dist` behavior for inclusion in other packages that build source dists.
 # make  top_distdir=../../pkgname-1.0 distdir=../../pkgname-1.0/subdir/FLAP \
