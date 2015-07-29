@@ -36,7 +36,7 @@ $(DEXE)TEST_DRIVER: $(MKDIRS) $(DOBJ)test_driver.o
 	@$(FC) $(OPTSL) $(DOBJ)*.o $(LIBS) -o $@
 EXES := $(EXES) $(DEXE)TEST_DRIVER
 
-all: foo $(EXES) $(LIBS)
+all: $(EXES) $(LIBS)
 
 install:
 # empty rule as long as this makefile does not build a library (only .mods' and .o's, NOINST)
