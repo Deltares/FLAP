@@ -8,11 +8,13 @@ DEXE    = Test_Driver/
 LIBS    =
 ifeq ("${FC}","")
 	FC      = gfortran
+else ifeq ("${FC}","f77")
+	FC      = gfortran
 endif
 
 OPTSC   =  -cpp -c -O2
 ifeq ("$(FC)", "gfortran")
-OPTSC+=-J Test_Driver/mod/ -frealloc-lhs
+OPTSC+=-J Test_Driver/mod/ -frealloc-lhs -ffree-line-length-none
 OPTSL+=-J Test_Driver/mod/
 else
 OPTSC+=-module Test_Driver/mod/ -assume realloc_lhs
