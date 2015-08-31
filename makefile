@@ -8,12 +8,12 @@ DEXE    = Test_Driver/
 LIBS    =
 ifeq ("${FC}","")
 	FC      = gfortran
-else ifeq ("${FC}","f77")
-	FC      = gfortran
 endif
+# This should not only detect gfortran/f77, but also a GNU-based mpif90:
+DOGNU = $(shell ${FC} --version | grep -i GNU > /dev/null; expr 1 - $$?)
 
 OPTSC   =  -cpp -c -O2
-ifeq ("$(FC)", "gfortran")
+ifeq ("$(DOGNU)", "1")
 OPTSC+=-J Test_Driver/mod/ -frealloc-lhs -ffree-line-length-none
 OPTSL+=-J Test_Driver/mod/
 else
