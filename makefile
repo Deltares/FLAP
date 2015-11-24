@@ -9,6 +9,10 @@ LIBS    =
 ifeq ("${FC}","")
 	FC      = gfortran
 endif
+ifeq ("${FC}","f77")
+  # under OSX FC is set by default to the nonexistent f77
+  FC      = gfortran
+endif
 # This should not only detect gfortran/f77, but also a GNU-based mpif90:
 DOGNU = $(shell ${FC} --version | grep -i GNU > /dev/null; expr 1 - $$?)
 
